@@ -1,64 +1,33 @@
 # ============================================
-# NEO-JANUS CONFIGURATION FILE
+# NEO-JANUS CORE CONFIGURATION
 # ============================================
-# Môi trường chạy: "development" (dev) hoặc "production" (prod)
 environment: "development"
 
 # --- Cấu hình Hệ thống Core (Janus Core - Go) ---
 server:
-  # Địa chỉ IP và Port mà Janus Core sẽ lắng nghe
-  host: "0.0.0.0" # Nghe trên tất cả các interface mạng
-  port: 8080      # Cổng mặc định cho API nội bộ
+  port: 8080      # Cổng cho API backend
 
 logging:
-  # Mức độ ghi log: "debug", "info", "warn", "error"
   level: "info"
-  # Đường dẫn lưu file log (Nếu để trống sẽ in ra màn hình console)
-  output_file: "./data/logs/neo-janus.log"
-  # Định dạng log: "json" (cho máy đọc) hoặc "text" (cho người đọc)
-  format: "text"
+  output_dir: "./data/logs/" # Đảm bảo thư mục này tồn tại
 
-# --- Cấu hình AI Phòng thủ (Blue Sentinel - Python) ---
+# --- Cấu hình AI Phòng thủ (Blue Sentinel) ---
 blue_sentinel:
-  # Đường dẫn đến file model đã nén (Quantized GGUF)
-  model_path: "./models/sentinel_v1.gguf"
-  
-  # Cấu hình chạy model (Inference)
-  inference:
-    # Số luồng CPU sử dụng (Nên đặt bằng số nhân thực của CPU - 1)
-    threads: 4
-    # Độ dài ngữ cảnh tối đa (Số token model nhớ được)
-    context_length: 512 # Giảm xuống để tiết kiệm RAM
-    # Nhiệt độ (Temperature): Càng cao model càng sáng tạo (0.0 - 1.0)
-    # Với tác vụ phân loại an ninh, nên để thấp để có kết quả ổn định.
-    temperature: 0.1
+  # Đường dẫn placeholder, sau này sẽ là file .gguf thật
+  model_path: "./1_blue_sentinel/models/sentinel_v1_mock.gguf" 
+  # Ngưỡng chặn: Nếu điểm rủi ro >= mức này sẽ bị chặn
+  blocking_threshold: 0.85
 
-  # Ngưỡng an toàn (Security Threshold)
-  # Nếu điểm độc hại (Malicious Score) > ngưỡng này -> CHẶN
-  blocking_threshold: 0.85 # Chặn nếu chắc chắn trên 85%
-
-# --- Cấu hình AI Tấn công (Red Agent - Python) ---
+# --- Cấu hình AI Tấn công (Red Agent) ---
 red_agent:
-  # Địa chỉ API mục tiêu để tấn công (Thường là địa chỉ của Blue Sentinel/App chính)
+  # API mục tiêu để bắn payload kiểm thử
   target_url: "http://localhost:8080/api/analyze"
-  
-  # Cấu hình Fuzzing (Sinh dữ liệu tấn công)
   fuzzing:
-    # Tỷ lệ chèn nhiễu/teencode vào câu lệnh (0.0 - 1.0)
-    mutation_rate: 0.3 # 30% từ trong câu sẽ bị biến đổi
-    # Danh sách các từ khóa nhạy cảm cần tập trung fuzzing
-    sensitive_keywords:
-      - "hack"
-      - "password"
-      - "admin"
-      - "system"
-      - "root"
+    # Tỷ lệ biến đổi ký tự (teencode hóa)
+    mutation_rate: 0.3
 
-# --- Cấu hình Cơ chế "Vaccine" (Digital Vaccine) ---
+# --- Cấu hình Cơ chế "Vaccine" ---
 vaccine:
-  # Bật/Tắt tính năng tự động học từ lỗ hổng
   enabled: true
-  # Đường dẫn lưu trữ các mẫu vaccine (các ca tấn công thành công)
-  storage_path: "./data/vaccine_registry.json"
-  # Số lượng mẫu tối thiểu để kích hoạt một đợt cập nhật giả lập
-  trigger_count: 10
+  # Số lượng lỗ hổng cần gom đủ để kích hoạt 1 đợt update giả lập
+  trigger_count: 5
