@@ -1,60 +1,92 @@
 package vaccine
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"sync"
 	"time"
 
 	"neo-janus/internal/logger"
 )
 
-// VaccineManager quản lý trạng thái các lỗ hổng phát hiện được
+// VaccineManager manage vulnerability detection and vaccine generation
 type VaccineManager struct {
-	failedInputs []string // Bộ đệm chứa các câu tấn công lọt lưới
-	triggerCount int      // Ngưỡng kích hoạt tạo vaccine
+	failedInputs []string
+	triggerCount int
+	mu           sync.RWMutex // Thread-safe access
 }
 
-// NewManager khởi tạo trình quản lý vaccine
+// NewManager create new vaccine manager instance
 func NewManager(triggerCount int) *VaccineManager {
 	return &VaccineManager{
 		triggerCount: triggerCount,
-		failedInputs: make([]string, 0),
+		failedInputs: make([]string, 0, triggerCount),
 	}
 }
 
-// ProcessResult phân tích kết quả từ Blue Sentinel để tìm lỗ hổng zero-day
-func (vm *VaccineManager) ProcessResult(input string, source string, status string) {
-	// LOGIC CỐT LÕI CỦA DIGITAL VACCINE:
-	// Chỉ quan tâm khi kẻ tấn công (RED_AGENT) thành công (PASSED)
-	// Điều này có nghĩa là hệ thống phòng thủ đã thất bại.
-	if source == "RED_AGENT" && status == "PASSED" {
-		logger.Info("💉 VACCINE TRIGGER: Detected successful attack entry! Input snippet: '%s...'", truncate(input, 30))
-		vm.failedInputs = append(vm.failedInputs, input)
+// ProcessResult analyze result from Blue Sentinel
+func (vm *VaccineManager) ProcessResult(input, source, status string) {
+	// Only care when RED_AGENT succeeds (bypassed defense)
+	if source != "RED_AGENT" || status != "PASSED" {
+		return
+	}
 
-		// Kiểm tra ngưỡng kích hoạt
-		if len(vm.failedInputs) >= vm.triggerCount {
-			vm.deployVaccinePatch()
-		}
+	vm.mu.Lock()
+	defer vm.mu.Unlock()
+
+	logger.Info("💉 VACCINE TRIGGER: Detected successful attack! Input: '%s...'", truncate(input, 30))
+	vm.failedInputs = append(vm.failedInputs, input)
+
+	// Check if threshold reached
+	if len(vm.failedInputs) >= vm.triggerCount {
+		go vm.deployVaccinePatch()
 	}
 }
 
-// deployVaccinePatch giả lập quy trình tạo và triển khai bản vá
+// deployVaccinePatch simulate vaccine patch deployment
 func (vm *VaccineManager) deployVaccinePatch() {
-	logger.Info("🧬 Digital Vaccine Protocol Initiated. Processing %d failed inputs...", len(vm.failedInputs))
-	
-	// --- PLACEHOLDER LOGIC ---
-	// Trong thực tế, tại đây sẽ:
-	// 1. Lưu vm.failedInputs xuống file JSON trong thư mục data/vaccine/
-	// 2. Gọi một script Python bên ngoài để thực hiện LoRA Fine-tuning nhanh.
-	// 3. Thông báo reload lại model (nếu cần).
-	
-	// Giả lập thời gian xử lý
-	time.Sleep(time.Millisecond * 500) 
-	
-	// Reset bộ đệm sau khi đã xử lý
-	vm.failedInputs = make([]string, 0)
+	vm.mu.Lock()
+	inputsCopy := make([]string, len(vm.failedInputs))
+	copy(inputsCopy, vm.failedInputs)
+	vm.failedInputs = vm.failedInputs[:0] // Reset buffer
+	vm.mu.Unlock()
+
+	logger.Info("🧬 Digital Vaccine Protocol Initiated. Processing %d failed inputs...", len(inputsCopy))
+
+	// Save failed inputs to file for later analysis
+	if err := vm.savePatchData(inputsCopy); err != nil {
+		logger.Error("Failed to save patch data: %v", err)
+	}
+
+	// Simulate processing time
+	time.Sleep(time.Millisecond * 500)
+
 	logger.Info("✅ Vaccine Patch simulation complete. System defense updated.")
 }
 
-// Hàm phụ trợ cắt ngắn chuỗi để log
+// savePatchData save failed inputs to JSON file
+func (vm *VaccineManager) savePatchData(inputs []string) error {
+	vaccineDir := "./data/vaccine"
+	if err := os.MkdirAll(vaccineDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	filename := filepath.Join(vaccineDir, time.Now().Format("vaccine_20060102_150405.json"))
+	data := map[string]interface{}{
+		"timestamp": time.Now().Unix(),
+		"inputs":    inputs,
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filename, jsonData, 0644)
+}
+
+// truncate shorten string for logging
 func truncate(s string, n int) string {
 	if len(s) > n {
 		return s[:n]
