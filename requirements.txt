@@ -1,0 +1,13 @@
+# AI Core
+torch>=2.1.0
+tiktoken
+# numpy
+
+# Frontend & API Interaction
+streamlit
+requests
+typer
+rich
+
+# (Optional - Future) For running real GGUF models
+# llama-cpp-python
