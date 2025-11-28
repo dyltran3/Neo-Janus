@@ -1,13 +1,13 @@
-# AI Core
+# --- AI Core & PyTorch ---
 torch>=2.1.0
 tiktoken
-# numpy
+typing_extensions
 
-# Frontend & API Interaction
+# --- Frontend & API Utilities ---
 streamlit
 requests
+pyyaml
+
+# --- CLI & Formatting ---
 typer
 rich
-
-# (Optional - Future) For running real GGUF models
-# llama-cpp-python
