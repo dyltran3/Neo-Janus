@@ -3,8 +3,17 @@ import requests
 import yaml
 import os
 import time
+import random
 import subprocess
 import sys
+from typing import TypedDict, List, Dict, Any
+
+# Định nghĩa kiểu Message cho lịch sử chat
+class Message(TypedDict, total=False):
+    role: str
+    content: str
+    blocked: bool
+    score: float
 
 # --- CẤU HÌNH TRANG ---
 st.set_page_config(
@@ -70,16 +79,15 @@ if not core_alive:
 # Chia layout làm 2 cột chính
 col_chat, col_red = st.columns([6, 4], gap="large")
 
-# === CỘT 1: CHAT PLAYGROUND (Giao diện người dùng) ===
+# === CỘT 1: CHAT INTERFACE ===
 with col_chat:
-    st.subheader("💬 Protected Chat Playground")
-    st.caption("Môi trường chat được bảo vệ bởi Blue Sentinel.")
+    st.subheader("💬 Chat với AI được bảo vệ")
 
     # Quản lý lịch sử chat trong session state
     if "messages" not in st.session_state:
         # Tin nhắn chào mừng ban đầu
         st.session_state.messages = [
-            {"role": "assistant", "content": "Xin chào! Tôi là AI Assistant được bảo vệ bởi Neo-Janus. Mọi tin nhắn của bạn sẽ được quét để đảm bảo an toàn."}
+            {"role": "assistant", "content": "Xin chào! Tôi là AI Assistant được bảo vệ bởi Neo-Janus. Mọi tin nhắn của bạn sẽ được quét để đảm bảo an toàn.", "blocked": False, "score": 0.0}
         ]
 
     # Hiển thị lịch sử chat
@@ -158,19 +166,6 @@ with col_red:
         # Khu vực hiển thị log real-time trên UI
         log_area = st.empty()
         progress_bar = st.progress(0)
-        
-        # --- GỌI SCRIPT PYTHON CON ---
-        # Để chạy script tấn công mà vẫn cập nhật được UI Streamlit,
-        # ta dùng subprocess để gọi file auto_attack.py và đọc output của nó.
-        # Đây là kỹ thuật nâng cao để tích hợp CLI tool vào Web UI.
-        
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        attack_script_path = os.path.join(base_dir, "../2_red_agent/auto_attack.py")
-        
-        # Lệnh chạy: python auto_attack.py --intensity X
-        # (Cần sửa nhẹ auto_attack.py để nhận tham số dòng lệnh nếu muốn truyền intensity từ UI, 
-        # nhưng để đơn giản bản demo này ta cứ chạy mặc định hoặc hardcode trong script con).
-        # Ở đây ta giả lập tiến trình để demo UI.
         
         logs = []
         success_count = 0
