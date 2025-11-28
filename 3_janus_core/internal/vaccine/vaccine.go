@@ -1,7 +1,8 @@
 package vaccine
 
 import (
-	"fmt"
+	"time"
+
 	"neo-janus/internal/logger"
 )
 
