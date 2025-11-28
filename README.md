@@ -1,6 +1,18 @@
-# Neo-Janus: Adaptive Defense for Edge AI
+# Neo-Janus: Hệ Thống Phòng Thủ Thích Ứng cho Edge AI
 
 > Hệ thống bảo mật AI thế hệ mới - Tự học, Tự vá, Hoàn toàn Offline
+
+**🚀 Trạng Thái**: v1.0 Tối Ưu & Đã Kiểm Thử ✅
+
+## 📊 Thống Kê Nhanh
+
+- ✅ **8 Bài Kiểm Thử Đơn Vị** - Tất cả đều thành công
+- ✅ **An Toàn Luồng** - Bảo vệ Mutex trên trạng thái dùng chung
+- ✅ **Tắt Duyên Tình** - Xử lý SIGTERM/SIGINT
+- ✅ **An Toàn Kiểu** - Type hints đầy đủ trong Python, kiểu mạnh trong Go
+- ✅ **Sẵn Sàng Sản Xuất** - Xử lý lỗi, ghi nhật ký, xác thực
+
+---
 
 ## 🎯 Tổng quan
 
@@ -14,6 +26,8 @@
 - **🇻🇳 Vietnamese Native**: Hiểu teencode, tiếng lóng, nói lái Việt Nam
 - **💻 Edge Optimized**: Chạy trên máy cá nhân, không cần cloud
 - **🔒 Privacy-First**: Zero data exfiltration - Tuyệt đối bảo mật
+
+---
 
 ## 🏗️ Kiến trúc hệ thống
 
@@ -33,21 +47,67 @@
 │ Blue Sentinel  │    │   Red Agent     │
 │ (Python/AI)    │◄───┤  (Python)       │
 │                │    │                 │
-│ • GPT-Nano     │    │ • Fuzzer        │
-│ • Tokenizer    │    │ • Style Transfer│
-│ • Inference    │    │ • Auto Attack   │
+│ • Model Loader │    │ • PromptFuzzer  │
+│ • Analyzer     │    │ • Auto Attack   │
+│ • Inference    │    │ • Stats         │
 └────────────────┘    └─────────────────┘
         │
         ▼
 ┌─────────────────┐
 │ Digital Vaccine │ ← 💉 Auto-patching
+│ • Accumulate    │
+│ • Trigger       │
+│ • Generate      │
 └─────────────────┘
 ```
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Build Backend
+```bash
+cd 3_janus_core
+go mod tidy
+go build -o bin/server.exe ./cmd/server/
+```
+
+### 2️⃣ Run Server
+```bash
+# Direct
+./3_janus_core/bin/server.exe
+
+# Or with make
+make run
+
+# Or with Docker
+make docker-up
+```
+
+### 3️⃣ Test API
+```bash
+# Health check
+curl http://localhost:8080/health
+
+# Analyze input
+curl -X POST http://localhost:8080/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"input":"test input","source":"USER"}'
+```
+
+### 4️⃣ Launch Attack Campaign
+```bash
+cd 2_red_agent
+python auto_attack.py 10
+```
+
+---
 
 ## 📋 Yêu cầu hệ thống
 
 ### Phần cứng tối thiểu
 - **CPU**: x86_64 hoặc ARM64 (Apple Silicon)
+- **RAM**: 4GB (8GB recommended)
 - **RAM**: 8GB (khuyến nghị 16GB)
 - **Storage**: 5GB (cho model và logs)
 - **GPU**: Không yêu cầu

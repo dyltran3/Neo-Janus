@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  janus-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neo-janus-core
+    ports:
+      - "8080:8080"
+    environment:
+      - LOG_LEVEL=info
+    volumes:
+      - ./data/logs:/app/data/logs
+      - ./data/vaccine:/app/data/vaccine
+      - ./config.yaml:/app/config.yaml:ro
+    networks:
+      - janus-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Redis for caching/sessions in future versions
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: neo-janus-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - janus-network
+  #   restart: unless-stopped
+
+  # Optional: PostgreSQL for persistence in future versions
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: neo-janus-db
+  #   environment:
+  #     POSTGRES_DB: neo_janus
+  #     POSTGRES_USER: janus
+  #     POSTGRES_PASSWORD: secure_password_here
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - janus-network
+  #   restart: unless-stopped
+
+networks:
+  janus-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:
