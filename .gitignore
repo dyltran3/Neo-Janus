@@ -1,72 +1,26 @@
-# ===========================
-# NEO-JANUS GITIGNORE
-# ===========================
-
-# --- 1. Python ---
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Virtual Environments (Môi trường ảo - QUAN TRỌNG NHẤT)
-# Loại bỏ tất cả các tên thư mục venv phổ biến
-venv/
 .venv/
-env/
-.env/
+venv/
 
-# --- 2. Go (Golang) ---
-# Binaries (File thực thi đã biên dịch)
-# Chúng ta chỉ commit mã nguồn .go, không commit file .exe
+# Go
 *.exe
 *.test
-*.out
-# Thư mục chứa binary đầu ra nếu có
-bin/
-dist/
 
-# --- 3. AI Models & Large Files (File nặng) ---
-# Không commit các file mô hình AI nặng hàng GB
-# Quy tắc: Chặn tất cả file có đuôi này trong mọi thư mục con
+# AI Models & Large Files (Không commit file nặng)
 models/**/*.gguf
 models/**/*.bin
 models/**/*.pth
-models/**/*.pt
-# Nếu sau này dùng Llama.cpp, chặn các file cache
-models/llama-cpp-cache/
 
-# --- 4. Project Data & Logs (Dữ liệu động) ---
-# Logs
+# Logs & Dynamic Data
 data/logs/*.log
-*.log
+data/vaccine/*.json
 
-# Dữ liệu Vaccine được sinh ra khi chạy
-data/vaccine_registry.json
+# Config secrets (Giữ lại file mẫu nếu cần)
+# config.yaml 
+# !config.example.yaml
 
-# Dữ liệu thô tạm thời (nếu có tải về để train)
-data/raw/*
-!data/raw/.gitkeep # Giữ lại thư mục rỗng, chỉ chặn file bên trong
-
-# --- 5. Configuration & Secrets (Cấu hình nhạy cảm) ---
-# File cấu hình thật đang dùng trên máy cá nhân
-config.yaml
-
-# Gợi ý: Hãy tạo một file 'config.example.yaml' mẫu và commit file đó,
-# sau đó thêm dòng sau để giữ lại file mẫu:
-!config.example.yaml
-
-# Các file chứa biến môi trường nhạy cảm
-.env
-
-# --- 6. IDE & OS Junk (Rác hệ thống) ---
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# macOS
-.DS_Store
-
-# VS Code (Tùy chọn: có thể commit settings.json nếu muốn đồng bộ setting cho team)
-# Nhưng thường thì nên ignore để tránh xung đột đường dẫn cá nhân.
+# IDE
 .vscode/
+.idea/
