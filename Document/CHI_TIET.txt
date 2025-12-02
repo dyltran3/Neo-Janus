@@ -1,0 +1,124 @@
+1. Blue Sentinel (AI Defense Core)
+Trọng tâm: Tối ưu hóa mô hình ngôn ngữ & Triển khai API hiệu năng cao.
+
+🛠️ Công nghệ & Thư viện (Tech Stack)
+Python 3.10+: Ngôn ngữ chính.
+
+PyTorch: Framework Deep Learning cốt lõi.
+
+Tiktoken: Thư viện tách từ (Tokenizer) tốc độ cao.
+
+FastAPI + Uvicorn: Framework xây dựng API server bất đồng bộ (Asynchronous).
+
+🧠 Kỹ thuật Lập trình (Techniques)
+Flash Attention (Scaled Dot Product): Tối ưu hóa tính toán ma trận Attention để giảm bộ nhớ và tăng tốc độ.
+
+Dynamic Quantization (INT8): Nén trọng số mô hình từ Float32 xuống Int8 để chạy nhanh trên CPU.
+
+Transformer Architecture: Tự xây dựng các lớp Self-Attention, FeedForward, LayerNorm.
+
+Model Serving: Đóng gói model thành RESTful API.
+
+📚 Tài liệu & Hướng dẫn (Tutorials)
+PyTorch Attention: PyTorch SDPA Docs
+
+Quantization: PyTorch Dynamic Quantization Tutorial
+
+Kiến trúc GPT: Video "Let's build GPT: from scratch" (Andrej Karpathy trên YouTube) - Cực kỳ quan trọng.
+
+FastAPI: FastAPI User Guide
+
+2. Animation Ads & Core Backend (Init)
+Trọng tâm: Sản xuất nội dung sáng tạo & Xây dựng nền móng Backend.
+
+🛠️ Công nghệ (Tech Stack)
+Animation Tools: Canva Video, Blender (Grease Pencil), hoặc CapCut PC.
+
+Golang (Go) 1.25+: Ngôn ngữ Backend.
+
+Chi Router (github.com/go-chi/chi): Framework HTTP nhẹ cho Go.
+
+🧠 Kỹ thuật Lập trình (Techniques)
+Visual Storytelling: Kỹ thuật kể chuyện bằng hình ảnh (Show, don't tell).
+
+Go Concurrency (Goroutines): Xử lý tác vụ nền (như ghi log Vaccine) mà không chặn luồng chính.
+
+Clean Architecture (Basic): Tổ chức thư mục dự án Go chuẩn (cmd/, internal/).
+
+JSON Marshalling: Chuyển đổi dữ liệu giữa Go Struct và JSON.
+
+📚 Tài liệu & Hướng dẫn (Tutorials)
+Go Cơ bản & Goroutines: Go by Example (Học nhanh qua ví dụ).
+
+HTTP Router: Go Chi Documentation
+
+Animation Principles: Kênh YouTube Alan Becker Tutorials (12 Principles of Animation).
+
+Blender 2D: Kênh YouTube Dedouze (Grease Pencil Tutorials).
+
+3. Red Agent (Attack Simulation)
+Trọng tâm: Kỹ thuật Fuzzing & Sinh dữ liệu tấn công.
+
+🛠️ Công nghệ (Tech Stack)
+Python Scripting: random, string, json.
+
+Regex (re): Module xử lý biểu thức chính quy.
+
+Requests: Thư viện gửi HTTP Request.
+
+🧠 Kỹ thuật Lập trình (Techniques)
+Mutation-based Fuzzing: Biến đổi dữ liệu đầu vào (thay ký tự, chèn nhiễu) để tìm lỗi.
+
+Prompt Injection / Jailbreaking: Các kỹ thuật đánh lừa LLM (VD: Role-playing, Teencode).
+
+Data Engineering: Xử lý chuỗi (String Manipulation) để tạo Teencode Việt Nam.
+
+Automation Scripting: Viết script chạy vòng lặp tấn công tự động.
+
+📚 Tài liệu & Hướng dẫn (Tutorials)
+Regex: Regex101 (Trang web test Regex trực quan).
+
+Prompt Injection: OWASP Top 10 for LLM (Đọc phần Prompt Injection).
+
+Fuzzing Concepts: Google Testing Blog - Fuzzing (Đọc để hiểu tư duy).
+
+Python Requests: Real Python - Python Requests
+
+4. Frontend & Integration (DevOps)
+Trọng tâm: Giao diện người dùng & Kết nối hệ thống.
+
+🛠️ Công nghệ (Tech Stack)
+Streamlit: Framework tạo Web App bằng Python.
+
+Docker & Docker Compose: Công cụ đóng gói và điều phối container.
+
+Pandas: Xử lý dữ liệu bảng (cho Log).
+
+🧠 Kỹ thuật Lập trình (Techniques)
+Session State Management: Quản lý trạng thái ứng dụng Web (lưu lịch sử chat, biến toàn cục) trong Streamlit.
+
+API Integration: Gọi REST API từ Python (Frontend) sang Go (Backend) và xử lý lỗi kết nối.
+
+Container Networking: Cấu hình mạng để các Docker container giao tiếp qua tên service (DNS nội bộ).
+
+Environment Variables: Quản lý cấu hình (URL, Port) qua biến môi trường.
+
+📚 Tài liệu & Hướng dẫn (Tutorials)
+Streamlit: Streamlit Documentation (Rất dễ hiểu, nhiều code mẫu).
+
+Docker Compose: Docker Compose Getting Started
+
+Networking: Docker Networking cho người mới
+
+Pandas: Pandas Cheat Sheet
+
+TỔNG HỢP: Lộ trình học nhanh 
+Để kịp tiến độ 2 tuần, mỗi bạn nên ưu tiên xem các tài liệu sau trước:
+
+Xem code mẫu PyTorch Transformer và FastAPI Hello World.
+
+Làm theo Go by Example (phần Goroutines) và xem video CapCut PC Tutorial.
+
+Thực hành trên Regex101 và đọc file payloads.txt mẫu.
+
+Copy code mẫu từ Streamlit Gallery và xem video Docker in 100 Seconds.
