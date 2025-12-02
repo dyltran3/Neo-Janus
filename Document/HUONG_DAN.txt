@@ -1,0 +1,202 @@
+neo-janus/
+├── 1_blue_sentinel/       # [BLUE] AI Phòng thủ
+│   ├── src/
+│   │   ├── attention.py
+│   │   ├── model.py
+│   │   ├── tokenizer.py
+│   │   └── inference.py
+│   ├── serve.py           # (New) API Server
+│   └── Dockerfile.ai
+├── 2_red_agent/           # [RED] AI Tấn công
+│   ├── attack_lib/
+│   │   ├── fuzzer.py
+│   │   └── payloads.txt
+│   └── auto_attack.py
+├── 3_janus_core/          # [CORE] Backend Go
+│   ├── cmd/server/main.go
+│   ├── internal/
+│   │   ├── api/api.go
+│   │   ├── logger/logger.go
+│   │   └── vaccine/vaccine.go
+│   ├── go.mod
+│   └── Dockerfile.core
+├── 4_frontend/            # [FRONTEND] Dashboard
+│   └── app.py
+├── deploy/                # [DEPLOY] Cấu hình chạy
+│   └── docker-compose.yml
+└── marketing/             # [ANIMATION] Tài liệu Marketing
+    └── scripts/
+PHẦN 1: BLUE SENTINEL (AI CORE)
+Nhiệm vụ: Bộ não xử lý ngôn ngữ, phát hiện độc hại.
+
+1. Chi tiết Code & Hướng dẫn File
+src/attention.py
+
+Chức năng: Tính toán sự tương quan giữa các từ (Self-Attention).
+
+Điểm cần hoàn thiện: Thay thế tính toán ma trận thủ công bằng F.scaled_dot_product_attention (Flash Attention) để giảm RAM.
+
+Mục tiêu: Chạy được trên CPU mà không tràn bộ nhớ với câu dài > 128 token.
+
+src/model.py
+
+Chức năng: Lắp ghép các khối Attention thành kiến trúc GPT hoàn chỉnh.
+
+Điểm cần hoàn thiện: Thêm hàm optimize_for_cpu() sử dụng Quantization (INT8).
+
+src/tokenizer.py
+
+Chức năng: Chuyển văn bản thành số.
+
+Điểm cần hoàn thiện: Thêm các token đặc biệt tiếng Việt hoặc Teencode vào từ điển để model không bị "lú".
+
+serve.py (File mới cần tạo)
+
+Chức năng: Chạy model dưới dạng API (FastAPI) để Backend gọi vào.
+
+Code: Dùng FastAPI, tạo endpoint POST /predict.
+
+2. Cách tìm kiếm kiến thức (Search Queries)
+Về Tối ưu hóa:
+
+"PyTorch Flash Attention implementation CPU" (Cách cài Flash Attention cho CPU).
+
+"PyTorch dynamic quantization linear layer tutorial" (Cách nén lớp Linear).
+
+Về Kiến trúc:
+
+"Code GPT from scratch using PyTorch" (Video của Andrej Karpathy là chuẩn nhất).
+
+Về API Serving:
+
+"FastAPI load machine learning model startup event" (Cách load model 1 lần khi khởi động server).
+
+PHẦN 2: RED AGENT (ATTACK SIMULATION)
+Nhiệm vụ: Giả lập Hacker, sinh dữ liệu test.
+
+1. Chi tiết Code & Hướng dẫn File
+attack_lib/fuzzer.py
+
+Chức năng: Biến đổi câu chữ bình thường thành câu tấn công (Fuzzing).
+
+Điểm cần hoàn thiện:
+
+Mở rộng teencode_map: Thêm các cặp ký tự Việt Nam (ví dụ: kh -> x, qu -> w).
+
+Thêm logic Injection: Chèn các ký tự lạ (\n, ###) vào giữa câu.
+
+attack_lib/payloads.txt
+
+Chức năng: Kho đạn dược.
+
+Cách hoàn thiện: Copy các mẫu tấn công từ danh sách OWASP LLM Top 10 hoặc Jailbreak Chat về file này.
+
+auto_attack.py
+
+Chức năng: Vòng lặp tự động bắn API liên tục.
+
+Điểm cần hoàn thiện: Thêm thanh tiến trình (tqdm hoặc rich) để nhìn cho chuyên nghiệp trên Terminal.
+
+2. Cách tìm kiếm kiến thức
+Về Kỹ thuật tấn công:
+
+"Prompt Injection list github" (Tìm các kho payload có sẵn).
+
+"Fuzzing strategies for LLM" (Các chiến lược làm nhiễu mô hình ngôn ngữ).
+
+Về Code Python:
+
+"Python regex substitute multiple patterns" (Cách thay thế nhiều từ cùng lúc bằng Regex).
+
+"Python requests concurrent futures" (Cách bắn nhiều request cùng lúc đa luồng).
+
+PHẦN 3: JANUS CORE (BACKEND ORCHESTRATOR)
+Nhiệm vụ: Trung tâm điều phối, chịu tải, xử lý logic nghiệp vụ.
+
+1. Chi tiết Code & Hướng dẫn File
+internal/api/api.go
+
+Chức năng: Nhận request từ Frontend, gọi AI, trả kết quả.
+
+Điểm cần hoàn thiện:
+
+Thay hàm callBlueSentinelMock bằng http.Client gọi sang serve.py.
+
+Dùng Goroutine (go func()) cho tác vụ gọi Vaccine để không chặn phản hồi user.
+
+internal/vaccine/vaccine.go
+
+Chức năng: Logic "Tự chữa lành".
+
+Điểm cần hoàn thiện: Ghi các mẫu tấn công lọt lưới vào file json thay vì chỉ in ra màn hình.
+
+cmd/server/main.go
+
+Chức năng: Khởi động server.
+
+Điểm cần hoàn thiện: Load cấu hình từ biến môi trường (Environment Variables) để chạy tốt trong Docker.
+
+2. Cách tìm kiếm kiến thức
+Về Golang:
+
+"Golang clean architecture folder structure" (Hiểu tại sao chia cmd, internal).
+
+"Golang worker pool pattern" (Cách xử lý hàng nghìn request cùng lúc).
+
+"Make HTTP request in Golang with timeout" (Tránh treo server khi gọi AI).
+
+Về Docker:
+
+"Docker multi-stage build golang" (Cách tạo file Docker siêu nhẹ cho Go).
+
+PHẦN 4: FRONTEND & ANIMATION (USER INTERFACE)
+Nhiệm vụ: Giao diện người dùng và Marketing.
+
+1. Chi tiết Code & Hướng dẫn File
+4_frontend/app.py
+
+Chức năng: Web App giao tiếp với người dùng.
+
+Điểm cần hoàn thiện:
+
+Session State: Lưu lịch sử chat st.session_state.messages.
+
+Real-time: Dùng st.empty() để cập nhật log tấn công mà không reload trang.
+
+Kết nối: Viết hàm Python requests gọi sang Backend Go.
+
+marketing/ (Animation)
+
+Công cụ: Canva / Blender / CapCut.
+
+Nhiệm vụ: Tạo video giải thích ngắn 30s.
+
+2. Cách tìm kiếm kiến thức
+Về Streamlit:
+
+"Streamlit chat interface tutorial" (Cách làm khung chat giống ChatGPT).
+
+"Streamlit auto refresh data" (Cách cập nhật biểu đồ realtime).
+
+Về Animation:
+
+"12 principles of animation for beginners" (Học quy tắc chuyển động).
+
+"Blender grease pencil tutorial 2d animation" (Làm hoạt hình 2D trong môi trường 3D).
+
+🚀 HƯỚNG DẪN HOÀN THIỆN TOÀN BỘ (DEPLOYMENT)
+Để ghép tất cả các phần trên thành sản phẩm chạy được (MVP), bạn cần file docker-compose.yml.
+
+AI Service: Chạy serve.py trên cổng 8001.
+
+Core Service: Chạy main.go trên cổng 8080, cấu hình gọi http://ai-service:8001.
+
+Frontend Service: Chạy app.py trên cổng 8501, cấu hình gọi http://core-service:8080.
+
+Keyword tìm kiếm khi gặp lỗi Deploy:
+
+"Docker compose networking internal dns" (Tại sao container này không gọi được container kia?).
+
+"Docker volume mount permission denied" (Lỗi không ghi được file log ra máy thật).
+
+"Python uvicorn host 0.0.0.0 vs localhost" (Tại sao chạy localhost thì được mà lên Docker thì tịt?).

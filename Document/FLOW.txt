@@ -1,0 +1,105 @@
+# 🏛️ HƯỚNG DẪN KIẾN TRÚC & LUỒNG HOẠT ĐỘNG NEO-JANUS
+
+Tài liệu này giải thích cách toàn bộ hệ thống Neo-Janus vận hành như một cỗ máy thống nhất và mối quan hệ giữa các file code.
+
+---
+
+## 1. Bức Tranh Tổng Thể (Big Picture)
+
+Hãy tưởng tượng Neo-Janus giống như một **Tòa nhà An ninh**:
+
+1.  **Frontend (Streamlit):** Là cái **Cổng Giao Tiếp**. Khách (User) đến đây để nói chuyện.
+2.  **Janus Core (Go):** Là **Phòng Điều Hành Trung Tâm**. Nhận yêu cầu từ cổng, quyết định làm gì tiếp theo.
+3.  **Blue Sentinel (Python AI):** Là **Vệ Sĩ Thông Minh**. Phòng điều hành hỏi: "Câu này an toàn không?", Vệ sĩ trả lời "Có" hoặc "Không".
+4.  **Red Agent (Python Script):** Là **Đội Diễn Tập**. Cố tình đóng giả kẻ trộm để thử thách Vệ sĩ.
+
+---
+
+## 2. Các File Kết Nối Với Nhau Như Thế Nào?
+
+Dưới đây là sơ đồ "Đường đi của dữ liệu" qua từng file code quan trọng.
+
+### 🔄 Luồng 1: Khi Người Dùng Chat (User Flow)
+
+**Bước 1: Khách gõ cửa**
+* **File:** `4_frontend/app.py`
+* **Hành động:** Người dùng nhập "Xin chào". File này đóng gói câu đó thành JSON và gửi một bức thư (HTTP Request) đến địa chỉ `http://janus-core:8080`.
+
+**Bước 2: Phòng điều hành tiếp nhận**
+* **File:** `3_janus_core/internal/api/api.go` (Hàm `handleAnalyze`)
+* **Hành động:** Nhận bức thư. Nó thấy cần kiểm tra an ninh, nên nó gọi điện cho Vệ Sĩ (Blue Sentinel).
+
+**Bước 3: Vệ sĩ soi xét**
+* **File:** `1_blue_sentinel/serve.py` (Hàm `predict`)
+* **Hành động:** Nhận câu "Xin chào".
+    * Nó nhờ `tokenizer.py` cắt câu thành số.
+    * Nó đưa số vào `model.py` (Bộ não AI).
+    * Bộ não dùng `attention.py` để suy nghĩ.
+* **Kết quả:** Trả về: `{"safe": true, "score": 0.1}` cho Phòng điều hành.
+
+**Bước 4: Phản hồi**
+* **File:** `3_janus_core/internal/api/api.go`
+* **Hành động:** Nhận kết quả từ Vệ sĩ. Nếu an toàn -> Trả lời User "OK". Nếu nguy hiểm -> Trả lời User "Bị chặn!".
+
+---
+
+### 🚨 Luồng 2: Khi Red Team Tấn Công (Attack Flow)
+
+**Bước 1: Chế tạo vũ khí**
+* **File:** `2_red_agent/attack_lib/fuzzer.py`
+* **Hành động:** Lấy một câu bình thường, dùng file `payloads.txt` và `teencode_map` để biến nó thành câu độc hại (VD: "h4ck w1f1").
+
+**Bước 2: Xả đạn**
+* **File:** `2_red_agent/auto_attack.py`
+* **Hành động:** Bắn liên tục 100 câu độc hại vào Phòng điều hành (`janus-core`).
+
+**Bước 3: Kích hoạt Vaccine (Cơ chế tự vệ)**
+* **File:** `3_janus_core/internal/vaccine/vaccine.go`
+* **Hành động:**
+    * Phòng điều hành thấy Vệ sĩ (Blue Sentinel) bị lừa (Cho qua câu độc hại).
+    * Nó gọi `vaccine.go` để ghi lại câu đó vào sổ đen (`vaccine_db.json`).
+    * Lần sau, hệ thống sẽ học từ lỗi lầm này.
+
+---
+
+## 3. Giải Mã Chi Tiết Các File (File Dictionary)
+
+Để các bạn (Bảo, Hùng, Tiến, Hoàn) biết mình đang code cái gì:
+
+### 🔵 Folder: 1_blue_sentinel
+* `serve.py`: **Cái miệng của AI**. Giúp AI nói chuyện được với thế giới bên ngoài qua API.
+* `model.py`: **Bộ não**. Chứa kiến trúc mạng nơ-ron GPT.
+* `attention.py`: **Kỹ năng tập trung**. Giúp AI xử lý thông tin nhanh hơn (Flash Attention).
+* `tokenizer.py`: **Người phiên dịch**. Dịch tiếng Việt sang ngôn ngữ máy.
+
+### 🔴 Folder: 2_red_agent
+* `fuzzer.py`: **Máy tạo hàng giả**. Biến chữ thường thành Teencode/Lóng.
+* `payloads.txt`: **Kho đạn**. Chứa các câu mẫu để tấn công.
+* `auto_attack.py`: **Súng máy**. Tự động bóp cò bắn liên thanh vào server.
+
+### 🟡 Folder: 3_janus_core
+* `main.go`: **Chìa khóa khởi động**. Nơi bật server lên.
+* `internal/api/api.go`: **Nhân viên lễ tân**. Đứng ra nhận yêu cầu và sai bảo các bộ phận khác.
+* `internal/vaccine/vaccine.go`: **Bác sĩ**. Chữa lành hệ thống khi có lỗ hổng.
+
+### 🟢 Folder: 4_frontend
+* `app.py`: **Màn hình hiển thị**. Vẽ ra khung chat, nút bấm, biểu đồ.
+
+### ⚙️ Folder: deploy (Của chung)
+* `docker-compose.yml`: **Bản thiết kế nhà**. Quy định phòng nào nằm ở đâu, nối dây điện (port) như thế nào để cả 4 ông trên nhìn thấy nhau.
+
+---
+
+## 4. Cách Chạy Hệ Thống "Full Option"
+
+Thay vì chạy từng file lẻ tẻ, chúng ta dùng `docker-compose` để bật cả tòa nhà lên cùng lúc.
+
+1.  **Docker đọc file** `docker-compose.yml`.
+2.  **Nó dựng 3 cái máy ảo (Container):**
+    * Máy 1: Chạy `serve.py` (Cổng 8001).
+    * Máy 2: Chạy `main.go` (Cổng 8080) -> *Được cấu hình để gọi Máy 1*.
+    * Máy 3: Chạy `app.py` (Cổng 8501) -> *Được cấu hình để gọi Máy 2*.
+3.  **Kết quả:** Bạn vào `localhost:8501` (Máy 3) bấm chat -> Nó chạy vòng tròn qua Máy 2 -> Máy 1 -> Máy 2 -> Máy 3 -> Hiện lên màn hình.
+
+---
+*Tài liệu này được biên soạn để đảm bảo mọi thành viên hiểu rõ vị trí của mình trong hệ thống.*
